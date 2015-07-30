@@ -1,5 +1,5 @@
 /*
-	This file contains all collections (with the exception of 
+	This file contains all collections (with the exception of
 	Meteor.user) as listed in the DatabaseSchemaSpec.
 */
 
@@ -11,13 +11,13 @@ notifications = new Mongo.Collection("notifications");
 messages = new Mongo.Collection("messages");
 
 /*
-	The following arguments are the rpc calls exposed to the 
+	The following arguments are the rpc calls exposed to the
 	client for database inserts and edits.
 
 	update_obligations:
 		Precondition
 			obligation_status_list - a list of objects of the following form
-			{_id, checked}, where _id is the Mongo-assigned _id of an 
+			{_id, checked}, where _id is the Mongo-assigned _id of an
 			obligations document stored in preparations (exposed through the
 			"obligations_id" attribute tag in appointment_detail), and checked
 			is a boolean indicating whether the corresponding checkbox is checked
@@ -42,7 +42,7 @@ messages = new Mongo.Collection("messages");
 					message.
 
 			**the entire update operation succeeds only if:
-				1) all passed-in obligations are NOT retroactive and all database update operations on these 
+				1) all passed-in obligations are NOT retroactive and all database update operations on these
 				obligations succeed.
 				2) setting the "updated_by_client" flag to true also succeeds.
 				3) setting the "previous_completed" field of each obligation succeeds.
@@ -52,8 +52,8 @@ messages = new Mongo.Collection("messages");
 	staff_update_obligations_with_notify
 		Precondition
 			obligation_status_list - a list of objects of the following form
-			{_id, checked}, 
-				_id is the Mongo-assigned _id of an 
+			{_id, checked},
+				_id is the Mongo-assigned _id of an
 				obligations document stored in preparations (exposed through the
 				"obligations_id" attribute tag in appointment_detail)
 				
@@ -197,11 +197,11 @@ Meteor.methods({
 			
 			if(obligation_record.notify_on_complete && e.checked){
 				console.log("notification: " + obligation_record.notify_options.text);
-				Push.send({from:obligation_record.notify_options.from, 
-							title:obligation_record.notify_options.title, 
-							text:obligation_record.notify_options.text, 
-							query:{userId:appointment_object.user_id}, 
-							sound:"test.wav", 
+				Push.send({from:obligation_record.notify_options.from,
+							title:obligation_record.notify_options.title,
+							text:obligation_record.notify_options.text,
+							query:{userId:appointment_object.user_id},
+							sound:"test.wav",
 							vibrate:true});
 			}
 		});
@@ -225,7 +225,12 @@ Meteor.methods({
 		messages.update({appointment_id:related_appointment_id, read:false, from_id:user_id},{$set:{read:true}});
 	},
 	send_message : function(message_text, user_id, physician_id, message_date, related_appointment_id){
+	  PUBNUB_demo.publish({
+          channel: 'demo_tutorial15',
+          message: {"text": message_text}
+    });
 		messages.insert({text:message_text, to_id:physician_id, from_id:user_id, appointment_id:related_appointment_id, date:message_date, read:false});
+		
 	},
 	staff_set_and_notify_appointment_exam_status : function(appointment_id, user_id, exam_status){
 		var appointment = appointments.findOne({_id:appointment_id});
@@ -249,10 +254,10 @@ Meteor.methods({
 		appointments.update({_id:appointment_id}, {$set:{exam_ready:exam_status}});
 		if(exam_status == true){
 		    console.log("ID: " + appointment.user_id);
-			Push.send({from:"Radiology Staff", 
-							title:"Exam Status", 
-							text:"Hi! You are ready for your exam!", 
-							query:{userId:appointment.user_id}, 
+			Push.send({from:"Radiology Staff",
+							title:"Exam Status",
+							text:"Hi! You are ready for your exam!",
+							query:{userId:appointment.user_id},
 							sound:"test.wav",
 							alert:true,
 							vibrate:true});

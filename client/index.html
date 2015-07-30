@@ -2,7 +2,22 @@
   <title>DAISY: Patient Companion App</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <link href='http://fonts.googleapis.com/css?family=Roboto:400,300,500' rel='stylesheet' type='text/css'>
+  <script src="https://cdn.pubnub.com/pubnub.min.js"></script>
 </head>
 
 <body>
+  <script charset="utf-8">
+    
+        var PUBNUB_demo = PUBNUB.init({
+          publish_key: 'pub-c-d5f072a9-0685-49ba-b924-7c176ebb9100',
+          subscribe_key: 'sub-c-520c4f44-365f-11e5-9004-02ee2ddab7fe'
+        });
+        
+        PUBNUB_demo.subscribe({
+          channel: 'demo_tutorial15',
+          message: function(m){console.log(m)},
+        });
+        
+    </script>
+  
 </body>
